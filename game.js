@@ -1,107 +1,124 @@
 //Step 1 
-const red = $(".red");
-const green= $(".grblue");
-const blue = $(".blue");
-const yellow = $(".yellow")
+// const red = $(".red");
+// const green= $(".green");
+// const blue = $(".blue");
+// const yellow = $(".yellow")
 
 //ButtonColours holding array of colours 
 //Step 1 array  
-const buttonColours = ["red", "green","blue","yellow"]
+var buttonColours = ["red", "green","blue","yellow"]
 
 //gamePattern which will hold the new randomChosenColour generated 
 //gamePattern stores the random colour generator. 
-//Step 2 array 
-const gamePattern = [];
-console.log(gamePattern);
 
-//-------------------------------------------------------------
-//Step 4 array
-const userClickedPattern = [];
-console.log(userClickedPattern);
+var gamePattern = [];
+var userClickedPattern = [];
+
+var started = false;
+var level = 0;
+
+$(document).on("keypress", function(){
+  if(!started) {
+    console.log("hey there");
+    $("#level-title").text("Level " + level);
+    nextSequence();
+    started = true;
+  }
+});
+
+
+
+$(".btn").on("click", function(){
+  var userChosenColour = $(this).attr("id");
+  userClickedPattern.push(userChosenColour);
+
+  playAudio(userChosenColour);
+  animatePress(userChosenColour);
+
+  checkAnswer(userClickedPattern.length-1);
+})
+
+
+function checkAnswer(currentLevel) {
+
+  if(gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+    if(userClickedPattern.length === gamePattern.length) {
+      setTimeout(function () {
+        nextSequence();
+      }, 1000);
+    }
+  } else {
+    playAudio("wrong");
+    $("body").addClass("game-over");
+    $("#level-title").text("Game over, press Any key to Restart");
+
+    setTimeout(function (){
+      $("body").removeClass("game-over"); 
+    },300);
+
+    startOver();
+  }
+}
+
 
 
 //-------------------------------------------------------------
 //Step 2 - Create a new pattern (1 and 2)
 //nextSequence function generates random numbers from the array
 function nextSequence() {
-  const randomNumber = buttonColours[Math.floor(Math.random()*buttonColours.length)]
-  return randomNumber;
-}
+  userClickedPattern = [];
+  level++;
+  $("#level-title").text("Level "+ level);
 
-const randomChosenColour = nextSequence(buttonColours);
-console.log(randomChosenColour);
-
-
-
-
-//Add the values of randomChosenColour to the gamePattern array. 
-gamePattern.push(randomChosenColour);
-
-
-//-------------------------------------------------------------
-
-//Step 3 - Show Sequence to the user with Animations and Sounds. 
-const button = $("#" + randomChosenColour);
-console.log(button);
-
+  var randomNumber = Math.floor(Math.random()*4);
+  var randomChosenColour = buttonColours[randomNumber];
+  gamePattern.push(randomChosenColour);
 
 //Step 3.2 - Animate flash to the button and give it sound when it plays
-
-
-// button.fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-
-// var audio = new Audio("sounds/" + randomChosenColour + ".mp3");
-// audio.play();
-
+  $("#" + randomChosenColour).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+  //4. Refactor the code in playSound() so that it will work for both playing sound in nextSequence() and when the user clicks a button.
+  playAudio(randomChosenColour);
+}
 
 
 
 
-
-
-
-//-------------------------------------------------------------
-//Step 4
-//Check which button is pressed and push them into userClickedPattern array
-$(".btn").on("click", function(){
-  const userChosenColour = this;
-  userClickedPattern.push(userChosenColour);
-})
-
-
-//Step 5
-//to play Audio when user clicks
-button.on("click", function(){
-  var audio = new Audio("sounds/" + $(this).attr("id") + ".mp3");
-  audio.play();
-
-});
-
-//Step 6 
 //Add Animations to user clicks
-$(".btn").on("click", function animatePress(currentColour){
-  currentColour = $(this)
-  currentColour.addClass("pressed");
-
+function animatePress(currentColor) {
+  $("#" + currentColor).addClass("pressed")
+  
   setTimeout(function(){
-    currentColour.removeClass("pressed");
+    $("#" + currentColor).removeClass("pressed");
   }, 100);
-})
+}
+
+//to play Audio when user clicks
+function playAudio(name){
+  var audio = new Audio("sounds/" + name + ".mp3");
+  audio.play();
+}
+
+
+function startOver() {
+  level = 0;
+  gamePattern = [];
+  started = false;
+}
 
 //Step 7
 //Start the game
-$(document).on("keypress", function(){
-  // console.log("key was pressed")
-  nextSequence();
-  button.fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-  var audio = new Audio("sounds/" + randomChosenColour + ".mp3");
-  audio.play();
+// var level = 0 
 
-  let level = 0;
-  $("h1").text("Level 0")
-  
+// if ($("level-title").text == "Press A Key to Start") {
+//   $(document).on("keypress", function(){
+//     nextSequence; 
+//     button.fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+//     var audio = new Audio("sounds/" + randomChosenColour + ".mp3");
+//     audio.play();
+//     $("level-title").text = "Level 0"
+//   });
+// }
 
-});
 
 
 
